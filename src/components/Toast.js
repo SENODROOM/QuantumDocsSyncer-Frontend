@@ -1,61 +1,27 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 
-const ToastCtx = createContext(null);
+const Ctx = createContext(null);
+const COLORS = { info:"var(--accent)", success:"var(--green)", error:"var(--red)", warn:"var(--yellow)" };
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
-
-  const add = useCallback((msg, type = "info") => {
+  const add = useCallback((msg, type="info") => {
     const id = Date.now();
     setToasts(p => [{ id, msg, type }, ...p]);
     setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 5000);
   }, []);
-
   return (
-    <ToastCtx.Provider value={add}>
+    <Ctx.Provider value={add}>
       {children}
-      <div style={styles.container}>
+      <div style={{ position:"fixed", bottom:"1.5rem", right:"1.5rem", zIndex:9999, display:"flex", flexDirection:"column", gap:"0.5rem" }}>
         {toasts.map(t => (
-          <div key={t.id} style={{ ...styles.toast, ...TYPES[t.type] }} className="fade-in">
+          <div key={t.id} className="fade-in" style={{ background:"var(--sur2)", border:`1px solid var(--border)`, borderLeft:`3px solid ${COLORS[t.type]}`, borderRadius:"var(--rsm)", padding:"0.7rem 1.1rem", fontFamily:"var(--mono)", fontSize:"0.78rem", maxWidth:340, boxShadow:"0 4px 24px rgba(0,0,0,.5)" }}>
             {t.msg}
           </div>
         ))}
       </div>
-    </ToastCtx.Provider>
+    </Ctx.Provider>
   );
 }
 
-const TYPES = {
-  info:    { borderLeftColor: "var(--accent)" },
-  success: { borderLeftColor: "var(--green)"  },
-  error:   { borderLeftColor: "var(--red)"    },
-  warn:    { borderLeftColor: "var(--yellow)" },
-};
-
-const styles = {
-  container: {
-    position: "fixed",
-    bottom: "1.5rem",
-    right: "1.5rem",
-    zIndex: 9999,
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-  },
-  toast: {
-    background: "var(--surface2)",
-    border: "1px solid var(--border)",
-    borderLeft: "3px solid var(--accent)",
-    borderRadius: "var(--r-sm)",
-    padding: "0.7rem 1.1rem",
-    fontFamily: "var(--mono)",
-    fontSize: "0.78rem",
-    color: "var(--text)",
-    maxWidth: 340,
-    boxShadow: "var(--shadow)",
-  },
-};
-
-export function useToast() {
-  return useContext(ToastCtx);
-}
+export const useToast = () => useContext(Ctx);
