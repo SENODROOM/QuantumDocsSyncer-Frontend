@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantumLangCodeExplaination</title>
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg:#07090e;
+  --s1:#0d1117;
+  --s2:#161b22;
+  --border:#21262d;
+  --accent:#00d4ff;
+  --purple:#7c3aed;
+  --green:#3fb950;
+  --red:#f85149;
+  --yellow:#d29922;
+  --text:#e6edf3;
+  --muted:#7d8590;
+  --orange:#f0883e;
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0
+}
+
+/* ── Header ── */
+header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:60px;
+  background:rgba(7,9,14,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.05rem;letter-spacing:-.3px}
+.logo-box{
+  width:30px;height:30px;border-radius:7px;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#fff
+}
+.logo span{color:var(--accent)}
+.hdr-right{display:flex;align-items:center;gap:1rem}
+.badge-live{
+  display:flex;align-items:center;gap:5px;
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  color:var(--green);background:rgba(63,185,80,.1);
+  border:1px solid rgba(63,185,80,.25);border-radius:20px;padding:3px 10px
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.queue-badge{
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);
+  background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:3px 10px
+}
+
+/* ── Layout ── */
+.layout{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px)}
+
+/* ── Sidebar ── */
+aside{
+  border-right:1px solid var(--border);padding:1.5rem 1rem;
+  background:rgba(13,17,23,.6);
+  position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto
+}
+.nav-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;padding:0 .5rem}
+.nav-item{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .75rem;border-radius:7px;cursor:pointer;
+  font-size:.85rem;color:var(--muted);transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left
+}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:rgba(0,212,255,.08);color:var(--accent);font-weight:600}
+.nav-item .icon{font-size:14px;width:18px;text-align:center}
+.nav-sep{height:1px;background:var(--border);margin:.75rem 0}
+
+/* ── Main ── */
+main{padding:2rem;overflow-x:hidden}
+.page{display:none}
+.page.active{display:block}
+
+/* ── Section title ── */
+.sec-title{font-size:1.1rem;font-weight:800;margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem}
+.sec-title::before{content:'';width:3px;height:18px;background:var(--accent);border-radius:2px;display:block}
+
+/* ── Stat cards ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:12px;
+  padding:1.25rem 1.5rem;transition:border-color .2s,transform .2s;position:relative;overflow:hidden
+}
+.stat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.stat-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--purple));opacity:0;transition:opacity .2s
+}
+.stat-card:hover::after{opacity:1}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.4rem}
+.stat-val{font-size:2rem;font-weight:800;line-height:1}
+.stat-val.c-accent{color:var(--accent)}
+.stat-val.c-green{color:var(--green)}
+.stat-val.c-red{color:var(--red)}
+.stat-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:.3rem}
+
+/* ── Grid 2 ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+
+/* ── Panel ── */
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.panel-head{
+  padding:.85rem 1.25rem;border-bottom:1px solid var(--border);
+  background:var(--s2);display:flex;align-items:center;justify-content:space-between
+}
+.panel-title{font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:.5rem}
+.panel-title::before{content:'';width:2px;height:13px;background:var(--accent);border-radius:2px;display:block}
+
+/* ── Live log ── */
+.log-box{
+  height:320px;overflow-y:auto;padding:.75rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;line-height:1.7;
+  background:var(--bg)
+}
+.log-box::-webkit-scrollbar{width:4px}
+.log-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.log-line{display:flex;gap:.5rem;padding:1px 0;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+.log-ts{color:var(--muted);flex-shrink:0}
+.log-file{color:var(--orange);flex-shrink:0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-msg{color:var(--text)}
+.log-line.success .log-msg{color:var(--green)}
+.log-line.error .log-msg{color:var(--red)}
+.log-line.skip .log-msg{color:var(--yellow)}
+.log-line.warn .log-msg{color:var(--yellow)}
+.log-line.queue .log-msg{color:var(--accent)}
+
+/* ── Activity feed ── */
+.feed{max-height:340px;overflow-y:auto}
+.feed::-webkit-scrollbar{width:4px}
+.feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.feed-item{
+  padding:.75rem 1.25rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:.65rem;font-size:.82rem;transition:background .15s
+}
+.feed-item:hover{background:var(--s2)}
+.feed-item:last-child{border:none}
+.fbadge{
+  flex-shrink:0;padding:2px 7px;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px
+}
+.b-success{background:rgba(63,185,80,.12);color:var(--green)}
+.b-error{background:rgba(248,81,73,.12);color:var(--red)}
+.b-skipped{background:rgba(210,153,34,.12);color:var(--yellow)}
+.fpath{font-family:'JetBrains Mono',monospace;color:var(--orange);font-size:.75rem;flex:1;word-break:break-all}
+.ferr{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--red);margin-top:2px;opacity:.8}
+.ftime{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);flex-shrink:0;white-space:nowrap}
+.empty{padding:3rem 1.5rem;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:.75rem;line-height:1.8}
+
+/* ── Trigger page ── */
+.trigger-card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.trigger-desc{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:1.25rem}
+.row{display:flex;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap}
+input[type=text],textarea{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:.6rem 1rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  flex:1;min-width:200px;outline:none;transition:border-color .2s
+}
+input:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px}
+.btn{
+  padding:.6rem 1.2rem;border-radius:8px;border:none;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;
+  cursor:pointer;transition:all .2s;white-space:nowrap
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-danger{background:rgba(248,81,73,.12);color:var(--red);border:1px solid rgba(248,81,73,.25)}
+.btn-danger:hover{background:rgba(248,81,73,.22)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--accent)}
+.trig-status{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);margin-top:.5rem;min-height:1.2rem}
+
+/* ── Progress bar ── */
+.progress-wrap{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem}
+.progress-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:.5rem}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));transition:width .4s ease;border-radius:3px}
+.progress-stats{display:flex;gap:1.5rem;margin-top:.6rem}
+.ps{font-family:'JetBrains Mono',monospace;font-size:.65rem}
+.ps .n{font-weight:700}
+.ps.s .n{color:var(--green)}
+.ps.e .n{color:var(--red)}
+.ps.p .n{color:var(--accent)}
+
+/* ── Index table ── */
+.idx-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.idx-table th{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.8px;
+  padding:.6rem 1rem;text-align:left;border-bottom:1px solid var(--border);
+  background:var(--s2);font-weight:400
+}
+.idx-table td{padding:.6rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.idx-table tr:hover td{background:var(--s2)}
+.idx-table tr:last-child td{border:none}
+.file-cell{font-family:'JetBrains Mono',monospace;color:var(--orange);font-size:.75rem;word-break:break-all}
+.doc-link{
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  color:var(--accent);text-decoration:none;
+  background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);
+  border-radius:4px;padding:2px 7px;white-space:nowrap
+}
+.doc-link:hover{background:rgba(0,212,255,.16)}
+.search-wrap{padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--s2)}
+.search-wrap input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:.5rem .85rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.78rem;outline:none}
+.search-wrap input:focus{border-color:var(--accent)}
+.idx-container{max-height:520px;overflow-y:auto}
+.idx-container::-webkit-scrollbar{width:4px}
+.idx-container::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;display:flex;flex-direction:column;gap:.5rem}
+.toast{
+  background:var(--s2);border:1px solid var(--border);border-radius:8px;
+  padding:.65rem 1.1rem;font-size:.8rem;font-family:'JetBrains Mono',monospace;
+  animation:slideIn .2s ease;max-width:340px
+}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--accent)}
+@keyframes slideIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+
+/* ── Refresh btn ── */
+.rbtn{
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);
+  background:none;border:1px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;transition:all .2s
+}
+.rbtn:hover{color:var(--accent);border-color:var(--accent)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-box">QL</div>
+    Quantum<span>Lang</span>CodeExplaination
+  </div>
+  <div class="hdr-right">
+    <div class="badge-live"><div class="dot"></div>Live</div>
+    <div class="queue-badge" id="hdr-queue">queue: 0</div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="nav-label">Dashboard</div>
+    <button class="nav-item active" data-page="overview" onclick="switchPage('overview',this)">
+      <span class="icon">⬡</span> Overview
+    </button>
+    <button class="nav-item" data-page="live" onclick="switchPage('live',this)">
+      <span class="icon">◉</span> Live Log
+    </button>
+    <div class="nav-sep"></div>
+    <div class="nav-label">Actions</div>
+    <button class="nav-item" data-page="trigger" onclick="switchPage('trigger',this)">
+      <span class="icon">▷</span> Trigger
+    </button>
+    <div class="nav-sep"></div>
+    <div class="nav-label">Data</div>
+    <button class="nav-item" data-page="history" onclick="switchPage('history',this)">
+      <span class="icon">≡</span> History
+    </button>
+    <button class="nav-item" data-page="index" onclick="switchPage('index',this)">
+      <span class="icon">◫</span> File Index
+    </button>
+    <div class="nav-sep"></div>
+    <div class="nav-label">Info</div>
+    <button class="nav-item" data-page="setup" onclick="switchPage('setup',this)">
+      <span class="icon">⚙</span> Setup
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <main>
+
+    <!-- ── Overview ── -->
+    <div class="page active" id="page-overview">
+      <div class="sec-title">Overview</div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-lbl">Total Updates</div><div class="stat-val c-accent" id="s-total">—</div><div class="stat-sub">all time</div></div>
+        <div class="stat-card"><div class="stat-lbl">Successful</div><div class="stat-val c-green" id="s-success">—</div><div class="stat-sub">docs written</div></div>
+        <div class="stat-card"><div class="stat-lbl">Errors</div><div class="stat-val c-red" id="s-errors">—</div><div class="stat-sub">failed files</div></div>
+        <div class="stat-card"><div class="stat-lbl">Last Update</div><div class="stat-val" id="s-last" style="font-size:1rem">—</div><div class="stat-sub" id="s-last-sub"></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Recent Activity</div>
+            <button class="rbtn" onclick="loadStats()">↻</button>
+          </div>
+          <div class="feed" id="feed-recent">
+            <div class="empty">Loading…</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Live Log</div>
+            <div class="badge-live" style="font-size:.62rem"><div class="dot"></div>streaming</div>
+          </div>
+          <div class="log-box" id="log-mini"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Live Log ── -->
+    <div class="page" id="page-live">
+      <div class="sec-title">Live Log</div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Real-time processing stream</div>
+          <button class="rbtn" onclick="clearLog()">clear</button>
+        </div>
+        <div class="log-box" id="log-full" style="height:560px"></div>
+      </div>
+    </div>
+
+    <!-- ── Trigger ── -->
+    <div class="page" id="page-trigger">
+      <div class="sec-title">Manual Trigger</div>
+
+      <div class="progress-wrap" id="prog-wrap" style="display:none">
+        <div class="progress-label" id="prog-label">Processing…</div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="progress-stats">
+          <div class="ps s"><span class="n" id="prog-s">0</span> success</div>
+          <div class="ps e"><span class="n" id="prog-e">0</span> errors</div>
+          <div class="ps p"><span class="n" id="prog-q">0</span> queued</div>
+        </div>
+      </div>
+
+      <div class="trigger-card">
+        <div class="panel-title" style="margin-bottom:.85rem">Selected Files</div>
+        <p class="trigger-desc">Enter file paths from the Quantum Language repo to regenerate their documentation. Separate multiple files with commas.</p>
+        <div class="row">
+          <input type="text" id="file-input" placeholder="include/AST/AST.h, src/lexer/Lexer.cpp, …" />
+        </div>
+        <div class="row">
+          <button class="btn btn-primary" id="btn-files" onclick="triggerFiles()">Generate Selected</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('file-input').value=''">Clear</button>
+        </div>
+        <div class="trig-status" id="trig-status-files"></div>
+      </div>
+
+      <div class="trigger-card">
+        <div class="panel-title" style="margin-bottom:.85rem">Full Repo Scan</div>
+        <p class="trigger-desc">Regenerate documentation for every file in the Quantum Language repo. This runs in the background. HuggingFace free tier processes ~1 file every 2–3 seconds, so a large repo may take several minutes.</p>
+        <div class="row">
+          <button class="btn btn-danger" id="btn-all" onclick="triggerAll()">⚡ Start Full Scan</button>
+        </div>
+        <div class="trig-status" id="trig-status-all"></div>
+      </div>
+    </div>
+
+    <!-- ── History ── -->
+    <div class="page" id="page-history">
+      <div class="sec-title">Update History</div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Last 100 updates</div>
+          <button class="rbtn" onclick="loadHistory()">↻</button>
+        </div>
+        <div class="feed" id="feed-history" style="max-height:600px">
+          <div class="empty">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── File Index ── -->
+    <div class="page" id="page-index">
+      <div class="sec-title">Documented Files</div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">All files with generated docs</div>
+          <button class="rbtn" onclick="loadIndex()">↻</button>
+        </div>
+        <div class="search-wrap">
+          <input type="text" id="idx-search" placeholder="Filter files…" oninput="filterIndex()" />
+        </div>
+        <div class="idx-container">
+          <table class="idx-table">
+            <thead><tr><th>File</th><th>Doc</th><th>Updated</th></tr></thead>
+            <tbody id="idx-body"><tr><td colspan="3" style="padding:2rem;text-align:center;color:var(--muted)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Setup ── -->
+    <div class="page" id="page-setup">
+      <div class="sec-title">Setup Guide</div>
+
+      <div class="panel" style="margin-bottom:1.5rem">
+        <div class="panel-head"><div class="panel-title">Backend URL</div></div>
+        <div style="padding:1.25rem">
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">Current backend: <code style="color:var(--orange);font-family:'JetBrains Mono',monospace" id="current-backend"></code></p>
+          <p style="font-size:.85rem;color:var(--muted);margin-bottom:.85rem">To point to a different backend, edit <code style="color:var(--orange);font-family:'JetBrains Mono',monospace">public/config.js</code></p>
+          <div class="row">
+            <button class="btn btn-ghost" onclick="pingBackend()">Ping Backend</button>
+          </div>
+          <div class="trig-status" id="ping-status"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Step 1 — Webhook</div></div>
+          <div style="padding:1.1rem;font-size:.8rem;color:var(--muted);line-height:1.8">
+            GitHub → Source repo → Settings → Webhooks → Add webhook<br><br>
+            <strong style="color:var(--text)">URL:</strong><br>
+            <code style="color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:.72rem;word-break:break-all" id="webhook-url">https://your-backend.vercel.app/webhook</code><br><br>
+            <strong style="color:var(--text)">Content-type:</strong> application/json<br>
+            <strong style="color:var(--text)">Events:</strong> Push only
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Step 2 — Docs Repo</div></div>
+          <div style="padding:1.1rem;font-size:.8rem;color:var(--muted);line-height:1.8">
+            Create a new empty GitHub repo named<br>
+            <code style="color:var(--accent);font-family:'JetBrains Mono',monospace">QuantumLangCodeExplaination</code><br><br>
+            under your account. The backend will auto-commit generated READMEs there.
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Step 3 — Deploy</div></div>
+          <div style="padding:1.1rem;font-size:.8rem;color:var(--muted);line-height:1.8">
+            <code style="color:var(--orange);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:.5rem">cd qlce-backend<br>npm install<br>vercel --prod</code>
+            <code style="color:var(--orange);font-family:'JetBrains Mono',monospace;display:block">cd qlce-frontend<br>npm install<br>vercel --prod</code><br>
+            Then update <code style="color:var(--orange);font-family:'JetBrains Mono',monospace">config.js</code> with backend URL.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = () => (window.QLCE_CONFIG?.BACKEND_URL || "http://localhost:4000");
+
+// ── Page switching ──────────────────────────────────────────────────────────
+function switchPage(id, btn) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+  document.getElementById("page-" + id).classList.add("active");
+  btn.classList.add("active");
+  if (id === "history") loadHistory();
+  if (id === "index")   loadIndex();
+  if (id === "setup")   setupPage();
+}
+
+// ── SSE live log ────────────────────────────────────────────────────────────
+let sse = null;
+let progSuccess = 0, progError = 0;
+
+function connectSSE() {
+  if (sse) sse.close();
+  sse = new EventSource(`${API()}/stream`);
+  sse.onmessage = e => {
+    const d = JSON.parse(e.data);
+    appendLog(d, "log-full");
+    appendLog(d, "log-mini");
+    if (d.level === "success") { progSuccess++; updateProgress(); }
+    if (d.level === "error")   { progError++;   updateProgress(); }
+    if (d.level === "queue") {
+      const m = d.message.match(/(\d+) files queued/);
+      if (m) document.getElementById("hdr-queue").textContent = `queue: ${m[1]}`;
+      updateProgress();
+    }
+  };
+  sse.onerror = () => setTimeout(connectSSE, 5000);
+}
+
+function appendLog(d, boxId) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  const ts = d.ts ? new Date(d.ts).toLocaleTimeString() : "";
+  const line = document.createElement("div");
+  line.className = `log-line ${d.level || ""}`;
+  line.innerHTML =
+    `<span class="log-ts">${ts}</span>` +
+    (d.filePath ? `<span class="log-file">${d.filePath.split("/").pop()}</span>` : "") +
+    `<span class="log-msg">${escHtml(d.message || "")}</span>`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+  // keep last 200 lines
+  while (box.children.length > 200) box.removeChild(box.firstChild);
+}
+
+function clearLog() {
+  document.getElementById("log-full").innerHTML = "";
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ── Progress ────────────────────────────────────────────────────────────────
+let progTotal = 0;
+function updateProgress() {
+  if (!progTotal) return;
+  const done = progSuccess + progError;
+  const pct = Math.min(100, Math.round((done / progTotal) * 100));
+  document.getElementById("prog-fill").style.width = pct + "%";
+  document.getElementById("prog-s").textContent = progSuccess;
+  document.getElementById("prog-e").textContent = progError;
+  document.getElementById("prog-label").textContent =
+    done >= progTotal ? `Done — ${progSuccess} success, ${progError} errors` : `Processing… ${done}/${progTotal}`;
+}
+
+// ── Stats ───────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch(`${API()}/stats`);
+    const d = await r.json();
+    document.getElementById("s-total").textContent   = d.stats?.total   ?? "—";
+    document.getElementById("s-success").textContent = d.stats?.success ?? "—";
+    document.getElementById("s-errors").textContent  = d.stats?.errors  ?? "—";
+    document.getElementById("s-last").textContent    = d.stats?.lastUpdate ? timeAgo(new Date(d.stats.lastUpdate)) : "Never";
+    document.getElementById("hdr-queue").textContent = `queue: ${d.queue ?? 0}`;
+    renderFeed(d.recent || [], "feed-recent");
+  } catch (e) { showToast("Stats error: " + e.message, "error"); }
+}
+
+async function loadHistory() {
+  try {
+    const r = await fetch(`${API()}/stats?type=history`);
+    const d = await r.json();
+    renderFeed(d.updates || [], "feed-history");
+  } catch { }
+}
+
+let allIndexData = [];
+async function loadIndex() {
+  try {
+    const r = await fetch(`${API()}/stats?type=index`);
+    const d = await r.json();
+    allIndexData = d.index || [];
+    renderIndex(allIndexData);
+  } catch { }
+}
+
+function filterIndex() {
+  const q = document.getElementById("idx-search").value.toLowerCase();
+  renderIndex(allIndexData.filter(i => i.filePath.toLowerCase().includes(q)));
+}
+
+function renderFeed(items, id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!items.length) { el.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  el.innerHTML = items.map(i => `
+    <div class="feed-item">
+      <span class="fbadge b-${i.status}">${i.status}</span>
+      <div style="flex:1;min-width:0">
+        <div class="fpath">${i.filePath}</div>
+        ${i.error ? `<div class="ferr">${i.error.slice(0,80)}</div>` : ""}
+      </div>
+      <span class="ftime">${timeAgo(new Date(i.timestamp))}</span>
+    </div>`).join("");
+}
+
+function renderIndex(items) {
+  const tbody = document.getElementById("idx-body");
+  if (!items.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="padding:2rem;text-align:center;color:var(--muted)">No documented files yet</td></tr>';
+    return;
+  }
+  const sorted = [...items].sort((a,b) => a.filePath.localeCompare(b.filePath));
+  const docsBase = `https://github.com/SENODROOM/QuantumLangCodeExplaination/blob/main/`;
+  tbody.innerHTML = sorted.map(i => `
+    <tr>
+      <td><div class="file-cell">${i.filePath}</div></td>
+      <td><a class="doc-link" href="${docsBase}${i.docPath}" target="_blank">view →</a></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted)">${i.updatedAt ? timeAgo(new Date(i.updatedAt)) : "—"}</td>
+    </tr>`).join("");
+}
+
+// ── Trigger ─────────────────────────────────────────────────────────────────
+async function triggerFiles() {
+  const raw = document.getElementById("file-input").value.trim();
+  if (!raw) { showToast("Enter at least one file path", "error"); return; }
+  const files = raw.split(",").map(f => f.trim()).filter(Boolean);
+  const btn = document.getElementById("btn-files");
+  btn.disabled = true; btn.textContent = "Queuing…";
+  setStatus("trig-status-files", `Sending ${files.length} file(s)…`);
+  try {
+    const r = await fetch(`${API()}/trigger`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ files })
+    });
+    const d = await r.json();
+    progTotal = files.length; progSuccess = 0; progError = 0;
+    showProgress();
+    showToast(d.message, "success");
+    setStatus("trig-status-files", `${d.fileCount} file(s) queued. Watch the Live Log tab.`);
+    setTimeout(loadStats, 10000);
+  } catch(e) { showToast("Error: "+e.message,"error"); setStatus("trig-status-files",""); }
+  finally { btn.disabled = false; btn.textContent = "Generate Selected"; }
+}
+
+async function triggerAll() {
+  if (!confirm("Regenerate docs for ALL files in the repo? This may take several minutes.")) return;
+  const btn = document.getElementById("btn-all");
+  btn.disabled = true; btn.textContent = "Starting…";
+  setStatus("trig-status-all", "Fetching file list…");
+  try {
+    const r = await fetch(`${API()}/trigger`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ all: true })
+    });
+    const d = await r.json();
+    progTotal = d.fileCount; progSuccess = 0; progError = 0;
+    showProgress();
+    showToast(`Full scan started: ${d.fileCount} files queued`, "info");
+    setStatus("trig-status-all", `${d.fileCount} files queued. Watch the Live Log tab.`);
+    setInterval(loadStats, 20000);
+  } catch(e) { showToast("Error: "+e.message,"error"); setStatus("trig-status-all",""); }
+  finally { btn.disabled = false; btn.textContent = "⚡ Start Full Scan"; }
+}
+
+function showProgress() {
+  document.getElementById("prog-wrap").style.display = "block";
+  document.getElementById("prog-fill").style.width = "0%";
+  updateProgress();
+}
+
+function setStatus(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
+}
+
+// ── Setup page ───────────────────────────────────────────────────────────────
+function setupPage() {
+  document.getElementById("current-backend").textContent = API();
+  document.getElementById("webhook-url").textContent = API() + "/webhook";
+}
+
+async function pingBackend() {
+  setStatus("ping-status", "Pinging…");
+  try {
+    const r = await fetch(`${API()}/`);
+    const d = await r.json();
+    setStatus("ping-status", `✓ Online — queue: ${d.queue}, running: ${d.running}`);
+    showToast("Backend is online", "success");
+  } catch(e) {
+    setStatus("ping-status", "✗ Could not reach backend");
+    showToast("Backend offline", "error");
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg, type="info") {
+  const c = document.getElementById("toast");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+
+// ── Time ago ─────────────────────────────────────────────────────────────────
+function timeAgo(d) {
+  const s = Math.floor((Date.now() - d) / 1000);
+  if (s < 60) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+connectSSE();
+loadStats();
+setInterval(loadStats, 30000);
+</script>
+</body>
+</html>
